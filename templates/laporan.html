@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%; /* Mengatur tinggi body dan html menjadi 100% */
+            margin: 0;
+        }
+        .sidebar {
+            height: 100vh;
+            background-color: #f8f9fa;
+            transition: width 0.3s ease;
+        }
+        .sidebar img {
+            width: 80%;
+            display: block;
+            margin: 10px auto;
+            margin-bottom: 40px;
+        }
+        .main-content {
+            background-color: #ffffff;
+            padding: 20px;
+            height: 100vh; /* Mengatur tinggi konten utama menjadi 100vh */
+            overflow-y: auto; /* Menambahkan scroll jika konten terlalu panjang */
+        }
+        .nav-link {
+            font-weight: 500;
+            font-size: 1.1rem;
+            color: #343a40;
+            transition: color 0.3s, background-color 0.3s;
+            padding: 10px 15px;
+        }
+        .nav-link:hover {
+            background-color: #ebf0f7;
+            color: #112b68;
+            border-radius: 5px;
+        }
+        .nav-link.active {
+            background-color: #bccded;
+            color: #112b68;
+            font-weight: bold;
+        }
+        .table {
+            width: 100%; /* Mengatur lebar tabel menjadi 100% dari konten */
+            table-layout: auto; /* Mengatur layout tabel agar responsif */
+        }
+        .table th {
+            background-color: #112b68;
+            color: #ebf0f7;
+            text-align: center;
+        }
+        .table td {
+            text-align: center;
+            padding: 8px;
+        }
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+        .table-striped tbody tr:hover {
+            background-color: rgba(0, 123, 255, 0.2);
+        }
+        .action-icons {
+            width: 120px;
+        }
+        .pagination-buttons {
+            margin: 20px 0;
+        }
+        .pagination-buttons button {
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row h-100">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+                <div class="position-sticky pt-3">
+                    <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('dashboard') }}">
+                                <i class="bi bi-house-door"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">
+                                <i class="bi bi-file-earmark-text"></i> Laporan
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('dataset') }}">
+                                <i class="bi bi-plus-square"></i> Dataset
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Laporan</h1>
+                    <button class="btn" style="background-color: #112b68; color: #ebf0f7" id="printButton" onclick="printTable()">Cetak Laporan</button>
+                </div>
+
+                <!-- Search, Records per Page, and Delete Selected Controls -->
+                <div class="d-flex justify-content-end align-items-center mb-3" id="controls">
+                    <input type="text" id="searchInput" class="form-control me-3" placeholder="Cari berdasarkan Nama..." onkeyup="filterTable()" style="max-width: 250px;">
+                    <select id="recordsPerPage" class="form-select me-3" style="max-width: 120px;" onchange="updateDisplayCount()">
+                        <option value="25">Tampilkan 25</option>
+                        <option value="50">Tampilkan 50</option>
+                        <option value="100">Tampilkan 100</option>
+                    </select>
+                    <button class="btn btn-danger" id="deleteButton" onclick="deleteSelected()">Hapus Terpilih</button>
+                </div>
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table table-striped" id="dataTable">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"></th>
+                                <th>ID</th>
+                                <th>Waktu</th>
+                                <th>Nama</th>
+                                <th>Akurasi</th>
+                                <th>Jenis Kelamin</th>
+                                <th>Durasi Deteksi (detik)</th>
+                                <th class="action-icons">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in logs %}
+                            <tr>
+                                <td><input type="checkbox" class="recordCheckbox" value="{{ log.id }}"></td>
+                                <td>{{ log.id }}</td>
+                                <td>{{ log.timestamp.strftime('%d-%m-%Y %H:%M:%S') }}</td>
+                                <td>{{ log.label }}</td>
+                                <td>{{ log.confidence | round(2) }}</td>
+                                <td>{{ 'Laki-laki' if log.gender == 'Male' else 'Perempuan' }}</td>
+                                <td>{{ log.duration | round(0) }}</td>
+                                <td class="action-icons">
+                                    <div class="action-buttons">
+                                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editLogModal"
+                                            data-id="{{ log.id }}" data-label="{{ log.label }}"
+                                            data-confidence="{{ log.confidence | round(2) }}"
+                                            data-gender="{{ 'Laki-laki' if log.gender == 'Male' else 'Perempuan' }}"
+                                            data-duration="{{ log.duration | round(0) }}">
+                                            <i class="bi bi-pencil"></i> Edit
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-center pagination-buttons">
+                    <button class="btn btn-secondary" style="background-color: #112b68; color: #ebf0f7" id="prevPage" onclick="changePage(-1)" title="Sebelumnya" {% if currentPage == 1 %}disabled{% endif %}>
+                        <i class="bi bi-arrow-left"></i> Sebelumnya
+                    </button>
+                    <button class="btn btn-secondary" style="background-color: #112b68; color: #ebf0f7" id="nextPage" onclick="changePage(1)" title="Selanjutnya">
+                        Selanjutnya <i class="bi bi-arrow-right"></i>
+                    </button>
+                </div>
+            </main>
+        </div>
+
+        <!-- Edit Log Modal -->
+        <div class="modal fade" id="editLogModal" tabindex="-1" aria-labelledby="editLogModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editLogModalLabel">Edit Log</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="" method="POST" id="editLogForm">
+                            <input type="hidden" id="logId" name="logId">
+                            <div class="mb-3">
+                                <label for="logLabel" class="form-label">Nama</label>
+                                <input type="text" class="form-control" id="logLabel" name="logLabel" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="logConfidence" class="form-label">Akurasi</label>
+                                <input type="number" class="form-control" id="logConfidence" name="logConfidence" step="0.01" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="logGender" class="form-label">Jenis Kelamin</label>
+                                <select class="form-select" id="logGender" name="logGender" required>
+                                    <option value="Male">Laki-laki</option>
+                                    <option value="Female">Perempuan</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="logDuration" class="form-label">Durasi Deteksi (detik)</label>
+                                <input type="number" class="form-control" id="logDuration" name="logDuration" required>
+                            </div>
+                            <button type="submit" style="background-color: #112b68; color: #ebf0f7;" class="btn btn-primary">Simpan Perubahan</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+        <script>
+            let currentDisplayCount = 25; // Menampilkan 25 entri secara default
+            let currentPage = 1;
+
+            window.onload = function() {
+                filterTable(); // Memanggil filterTable saat halaman dimuat
+            };
+
+            function filterTable() {
+                const input = document.getElementById('searchInput').value.toLowerCase();
+                const rows = document.querySelectorAll('#dataTable tbody tr');
+                let visibleCount = 0;
+
+                rows.forEach((row) => {
+                    const cells = row.getElementsByTagName('td');
+                    const nameCell = cells[3].textContent.toLowerCase();
+                    const matches = nameCell.includes(input);
+
+                    row.style.display = matches ? '' : 'none';
+                    if (matches) visibleCount++;
+                });
+
+                updatePagination();
+            }
+
+            function updateDisplayCount() {
+                const select = document.getElementById('recordsPerPage');
+                currentDisplayCount = parseInt(select.value);
+                currentPage = 1; // Reset ke halaman pertama
+                filterTable();
+            }
+
+            function printTable() {
+                // Sembunyikan checkbox, menu pencarian, tombol "Tampilkan", tombol hapus, dan tombol navigasi
+                document.getElementById('selectAll').style.display = 'none';
+                const checkboxes = document.querySelectorAll('.recordCheckbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.style.display = 'none';
+                });
+                document.getElementById('searchInput').style.display = 'none';
+                document.getElementById('recordsPerPage').style.display = 'none';
+                document.getElementById('deleteButton').style.display = 'none';
+
+                // Sembunyikan seluruh kolom aksi
+                const actionColumns = document.querySelectorAll('.action-icons');
+                actionColumns.forEach(column => {
+                    column.style.display = 'none';
+                });
+
+                // Sembunyikan tombol navigasi
+                document.querySelector('.pagination-buttons').style.display = 'none';
+
+                // Cetak halaman
+                window.print();
+
+                // Tampilkan kembali kontrol setelah mencetak
+                document.getElementById('selectAll').style.display = 'block';
+                checkboxes.forEach(checkbox => {
+                    checkbox.style.display = 'inline'; // Atur kembali checkbox menjadi terlihat
+                });
+                document.getElementById('searchInput').style.display = 'block';
+                document.getElementById('recordsPerPage').style.display = 'block';
+                document.getElementById('deleteButton').style.display = 'block';
+                actionColumns.forEach(column => {
+                    column.style.display = 'table-cell'; // Atur kembali kolom aksi menjadi terlihat
+                });
+
+                // Tampilkan kembali tombol navigasi
+                document.querySelector('.pagination-buttons').style.display = 'flex';
+            }
+
+            function toggleSelectAll(source) {
+                const checkboxes = document.querySelectorAll('.recordCheckbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = source.checked;
+                });
+            }
+
+            function deleteSelected() {
+                const selectedIds = Array.from(document.querySelectorAll('.recordCheckbox:checked')).map(checkbox => checkbox.value);
+                if (selectedIds.length === 0 || !confirm('Apakah Anda yakin ingin menghapus data yang dipilih?')) {
+                    return;
+                }
+
+                fetch('/delete_logs', {
+                    method: 'POST',
+                    body: JSON.stringify({ ids: selectedIds }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload(); // Segarkan halaman untuk melihat pembaruan
+                    } else {
+                        alert('Gagal menghapus log.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+
+            function changePage(direction) {
+                currentPage += direction;
+                filterTable();
+            }
+
+            function updatePagination() {
+                const rows = document.querySelectorAll('#dataTable tbody tr');
+                let start = (currentPage - 1) * currentDisplayCount;
+                let end = start + currentDisplayCount;
+
+                let displayedRows = 0;
+                rows.forEach((row) => {
+                    if (row.style.display !== 'none') {
+                        displayedRows++;
+                        row.style.display = (displayedRows > start && displayedRows <= end) ? '' : 'none';
+                    }
+                });
+
+                document.getElementById('prevPage').disabled = currentPage === 1;
+                document.getElementById('nextPage').disabled = displayedRows <= end;
+            }
+
+            document.getElementById('editLogModal').addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                document.getElementById('logId').value = button.getAttribute('data-id');
+                document.getElementById('logLabel').value = button.getAttribute('data-label');
+                document.getElementById('logConfidence').value = button.getAttribute('data-confidence');
+                document.getElementById('logGender').value = button.getAttribute('data-gender') === 'Laki-laki' ? 'Male' : 'Female';
+                document.getElementById('logDuration').value = button.getAttribute('data-duration');
+            });
+        </script>
+    </body>
+</html>

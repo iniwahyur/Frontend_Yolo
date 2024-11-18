@@ -1,0 +1,185 @@
+import cv2
+import time
+from ultralytics import YOLO
+
+# Load YOLOv8 model
+model = YOLO('best.pt')  # Make sure you have the model file, 'yolov8n.pt', downloaded
+
+colors = {
+    0: (0, 0, 255),      # Merah untuk "Risyad Maulana"
+    1: (0, 255, 0)      # Hijau untuk "Adhitya Hendri"
+}
+
+class_names = {
+    0: "jefri",
+    1: "manca"
+    # 2: "Alif Andika",
+    # 3: "Allam Rosyad Akbar",
+    # 4: "Annisa Rizkyta",
+    # 5: "Ardiansyah Al Faiz",
+    # 6: "Arif",
+    # 7: "Ayunda Lintang",
+    # 8: "Azwar Syifa",
+    # 9: "Daffa",
+    # 10: "Desfianto",
+    # 11: "Dhery Akbar Ramadhan",
+    # 12: "Fadeta Ilham Gandi",
+    # 13: "Iqbal Farissi",
+    # 14: "Merthisia Roszi",
+    # 15: "Risyad Maulana",
+}
+
+# Load pre-trained face detector (Haarcascade classifier)
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
+# Example gender classifier function (dummy, returns Male/Female based on random chance)
+import random
+def classify_gender(face):
+    # Placeholder function: replace with an actual gender classifier model
+    return "Male" if random.random() > 0.5 else "Female"
+
+# Function to detect behavior (people only)
+def detect_behavior(frame):
+    results = model(frame)
+    return results
+
+# Access the camera (replace with the appropriate camera index)
+cap = cv2.VideoCapture(0)  # Change to the correct index for your camera
+
+# Open log file to record detections
+log_file = open('log.txt', 'a')  # Open file in append mode
+
+# Time control variables
+last_detection_time = time.time()  # Initialize the time of the last detection
+detection_interval = 1  # Interval in seconds (1 second)
+
+# Buffer to store detected boxes and their timestamps
+box_buffer = []  # List to store (x1, y1, x2, y2, label, gender, init_time, last_seen_time)
+
+# Counter for labeling detected people
+person_counter = 0
+
+# Function to calculate IoU (Intersection over Union)
+def calculate_iou(box1, box2):
+    x1_1, y1_1, x2_1, y2_1 = box1
+    x1_2, y1_2, x2_2, y2_2 = box2
+
+    # Calculate the coordinates of the intersection rectangle
+    x1_inter = max(x1_1, x1_2)
+    y1_inter = max(y1_1, y1_2)
+    x2_inter = min(x2_1, x2_2)
+    y2_inter = min(y2_1, y2_2)
+
+    # Calculate the area of intersection
+    inter_area = max(0, x2_inter - x1_inter) * max(0, y2_inter - y1_inter)
+
+    # Calculate the areas of the input boxes
+    box1_area = (x2_1 - x1_1) * (y2_1 - y1_1)
+    box2_area = (x2_2 - x1_2) * (y2_2 - y1_2)
+
+    # Calculate IoU
+    iou = inter_area / float(box1_area + box2_area - inter_area)
+    return iou
+
+# Function to check if a box is already in the buffer using IoU
+def is_box_in_buffer(new_box, buffer, iou_threshold=0.5):
+    """Check if a new bounding box is already in the buffer using IoU.
+       If IoU > threshold, the boxes are considered the same."""
+    for i, (x1, y1, x2, y2, label, gender, init_time, last_seen_time) in enumerate(buffer):
+        existing_box = (x1, y1, x2, y2)
+        iou = calculate_iou(new_box, existing_box)
+        if iou > iou_threshold:
+            return i  # Return index of the matched box in the buffer
+    return -1  # If not found, return -1
+
+# Duration to keep boxes if they are not seen (in seconds)
+box_expiry_duration = 2
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    # Get current time
+    current_time = time.time()
+
+    # Perform detection only if the detection interval has passed
+    if current_time - last_detection_time >= detection_interval:
+        results = detect_behavior(frame)
+        last_detection_time = current_time  # Update the time of the last detection
+
+        # Add new detections to the buffer with current timestamp
+        for result in results:
+            boxes = result.boxes  # Get the detected boxes
+            for box in boxes:
+                cls = int(box.cls[0])  # Class index
+                # Only process if the detected class is 'person' (class index 0)
+                if cls == 0:
+                    x1, y1, x2, y2 = map(int, box.xyxy[0])  # Get coordinates of the bounding box
+                    conf = box.conf[0]  # Confidence score
+                    new_box = (x1, y1, x2, y2)
+
+                    # Detect face inside the bounding box
+                    face_region = frame[y1:y2, x1:x2]
+                    faces = face_cascade.detectMultiScale(face_region, scaleFactor=1.1, minNeighbors=5)
+
+                    gender = "Unknown"
+                    if len(faces) > 0:
+                        # If a face is detected, classify gender based on the face
+                        for (fx, fy, fw, fh) in faces:
+                            face = face_region[fy:fy+fh, fx:fx+fw]
+                            gender = classify_gender(face)
+
+                    # Check if this box is already in the buffer using IoU
+                    box_index = is_box_in_buffer(new_box, box_buffer)
+
+                    if box_index == -1:
+                        # If the box is new, add to buffer with initial timestamp
+                        person_counter += 1  # Increment the person counter
+                        label = f"Orang {person_counter} {conf:.2f}"  # Assign unique label to each person
+                        box_buffer.append((x1, y1, x2, y2, label, gender, current_time, current_time))
+
+                        # Write detection start to log file with gender
+                        log_entry = f"{time.strftime('%Y-%m-%d %H:%M:%S')} - Detected: {label}, Gender: {gender} (Confidence: {conf:.2f})\n"
+                        log_file.write(log_entry)
+
+                    else:
+                        # If the box is already in the buffer, update the last seen time and box position
+                        buffer_item = list(box_buffer[box_index])
+                        buffer_item[0], buffer_item[1], buffer_item[2], buffer_item[3] = x1, y1, x2, y2  # Update the box coordinates
+                        buffer_item[7] = current_time  # Update last seen time
+                        box_buffer[box_index] = tuple(buffer_item)
+
+    # Remove boxes that have not been seen for a certain amount of time
+    expired_boxes = [(x1, y1, x2, y2, label, gender, init_time, last_seen_time) for (x1, y1, x2, y2, label, gender, init_time, last_seen_time) in box_buffer
+                     if current_time - last_seen_time > box_expiry_duration]
+
+    # Write the log for boxes that are no longer detected
+    for (x1, y1, x2, y2, label, gender, init_time, last_seen_time) in expired_boxes:
+        detection_duration = current_time - init_time
+        log_entry = f"{time.strftime('%Y-%m-%d %H:%M:%S')} - {label}, Gender: {gender} left. Detected for {detection_duration:.2f} seconds.\n"
+        log_file.write(log_entry)
+
+    # Update buffer by removing expired boxes
+    box_buffer = [(x1, y1, x2, y2, label, gender, init_time, last_seen_time) for (x1, y1, x2, y2, label, gender, init_time, last_seen_time) in box_buffer
+                  if current_time - last_seen_time <= box_expiry_duration]
+
+    # Draw all boxes (both new and from the buffer) on the current frame
+    for (x1, y1, x2, y2, label, gender, init_time, last_seen_time) in box_buffer:
+        # Calculate how long the person has been detected
+        time_elapsed = current_time - init_time
+        timer_label = f"{label}, {gender} | {int(time_elapsed)}s"
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+        cv2.putText(frame, timer_label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+    # Show the frame with detections (this only happens once per loop)
+    cv2.imshow('Deteksi Perilaku Mahasiswa', frame)
+
+    # Exit the loop if 'q' is pressed
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+# Cleanup
+log_file.close()  # Close the log file
+cap.release()
+cv2.destroyAllWindows()

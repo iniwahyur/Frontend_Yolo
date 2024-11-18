@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring Perilaku</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .sidebar {
+            height: 100vh;
+            background-color: #f8f9fa;
+            transition: width 0.3s ease; /* Animation for width change */
+        }
+        .sidebar img {
+            width: 80%; /* Ukuran logo bisa diatur sesuai kebutuhan */
+            display: block;
+            margin: 10px auto; /* Centering logo */
+            margin-bottom: 40px; /* Increase spacing between logo and title */
+        }
+        .main-content {
+            background-color: #ffffff;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            height: 100%; /* Memastikan semua card memiliki tinggi yang sama */
+        }
+        .nav-link {
+            font-weight: 500; /* Konsisten di kedua elemen */
+            font-size: 1.1rem; /* Ukuran font sama */
+            color: #343a40; /* Warna teks umum */
+            transition: color 0.3s, background-color 0.3s; /* Animasi saat hover */
+            padding: 10px 15px; /* Padding untuk elemen link */
+        }
+        .nav-link:hover {
+            background-color: #ebf0f7;
+            color: #112b68;
+            border-radius: 5px;
+        }
+        .nav-link.active {
+            background-color: #bccded;
+            color: #112b68;
+            font-weight: bold;
+        }
+        /* Styling untuk font jam dan tanggal */
+        .current-time-date {
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 700; /* Ketebalan font */
+            font-size: 2rem; /* Ukuran font untuk waktu dan tanggal */
+            color: #333;
+        }
+        .icon {
+            font-size: 1.5rem; /* Ukuran ikon */
+            margin-right: 10px; /* Jarak antara ikon dan teks */
+        }
+        .d-flex-align { 
+            display: flex; 
+            align-items: center; /* Menyelaraskan ikon dan teks secara vertikal */
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">
+                                <i class="bi bi-house-door"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('laporan') }}">
+                                <i class="bi bi-file-earmark-text"></i> Laporan
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('dataset') }}">
+                                <i class="bi bi-plus-square"></i> Dataset
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Dashboard</h1>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="row row-cols-1 row-cols-md-2 g-4">
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title d-flex-align">
+                                            <i class="bi bi-clock icon"></i> Waktu 
+                                        </h5>
+                                        <p class="card-text current-time-date" id="current-time"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title d-flex-align">
+                                            <i class="bi bi-calendar icon"></i> Tanggal     
+                                        </h5>
+                                        <p class="card-text current-time-date" id="current-date"></p> <!-- Menggunakan kelas yang sama -->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <i class="bi bi-file-earmark-text"></i> Jumlah Laporan
+                                        </h5>
+                                        <p class="card-text fs-2">{{ total_logs }}</p> <!-- Display the total logs count -->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">####</h5>
+                                        <p class="card-text fs-2"> </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Monitoring Kamera CCTV</h5>
+                                <img src="{{ url_for('video_feed') }}" class="img-fluid" alt="Video Feed">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function updateTime() {
+            const now = new Date();
+            // Ambil waktu dan ganti titik (.) dengan titik dua (:)
+            let timeString = now.toLocaleTimeString('id-ID', { hour12: false });
+            timeString = timeString.replace(/\./g, ':');
+            document.getElementById('current-time').textContent = timeString;
+
+            // Ambil tanggal sekarang
+            const dateString = now.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('current-date').textContent = dateString;
+        }
+
+        // Update time every second
+        setInterval(updateTime, 1000);
+
+        // Set the initial time and date
+        updateTime();
+    </script>
+</body>
+</html>
