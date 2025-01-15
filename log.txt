@@ -158,3 +158,168 @@
 2024-11-05 21:47:50 - minuman 0.62, Gender: Unknown left. Detected for 4.10 seconds.
 2024-11-05 21:47:51 - Detected: manca 0.72, Gender: Unknown (Confidence: 0.72)
 2024-11-05 21:47:52 - manca 0.37, Gender: Unknown left. Detected for 2.04 seconds.
+2024-11-29 14:28:05 - Detected: jefri 0.64, Gender: Unknown (Confidence: 0.64)
+2024-11-29 14:28:18 - Detected: jefri 0.50, Gender: Male (Confidence: 0.50)
+2024-11-29 14:28:20 - jefri 0.50, Gender: Male left. Detected for 2.01 seconds.
+2024-11-29 14:28:21 - Detected: jefri 0.30, Gender: Unknown (Confidence: 0.30)
+2024-11-29 14:28:23 - jefri 0.30, Gender: Unknown left. Detected for 2.09 seconds.
+2024-11-29 14:28:24 - Detected: jefri 0.58, Gender: Female (Confidence: 0.58)
+2024-11-29 14:28:27 - jefri 0.64, Gender: Unknown left. Detected for 29.39 seconds.
+2024-11-29 14:28:28 - Detected: jefri 0.70, Gender: Unknown (Confidence: 0.70)
+2024-11-29 14:28:29 - Detected: jefri 0.82, Gender: Unknown (Confidence: 0.82)
+2024-11-29 14:28:29 - jefri 0.58, Gender: Female left. Detected for 5.20 seconds.
+2024-11-29 14:28:30 - Detected: jefri 0.52, Gender: Male (Confidence: 0.52)
+2024-11-29 14:28:30 - jefri 0.70, Gender: Unknown left. Detected for 2.09 seconds.
+2024-11-29 14:28:31 - Detected: jefri 0.85, Gender: Unknown (Confidence: 0.85)
+2024-11-29 14:28:31 - jefri 0.82, Gender: Unknown left. Detected for 2.05 seconds.
+2024-11-29 14:28:32 - Detected: jefri 0.77, Gender: Unknown (Confidence: 0.77)
+2024-11-29 14:28:32 - jefri 0.52, Gender: Male left. Detected for 2.05 seconds.
+2024-11-29 14:28:33 - Detected: jefri 0.73, Gender: Female (Confidence: 0.73)
+2024-11-29 14:28:33 - jefri 0.85, Gender: Unknown left. Detected for 2.05 seconds.
+2024-11-29 14:28:35 - jefri 0.73, Gender: Female left. Detected for 2.06 seconds.
+2024-11-29 14:28:50 - Detected: jefri 0.90, Gender: Unknown (Confidence: 0.90)
+2024-11-29 14:28:52 - Detected: jefri 0.59, Gender: Male (Confidence: 0.59)
+2024-11-29 14:28:52 - jefri 0.90, Gender: Unknown left. Detected for 2.05 seconds.
+2024-11-29 14:28:53 - jefri 0.77, Gender: Unknown left. Detected for 20.48 seconds.
+2024-11-29 14:28:54 - Detected: jefri 0.76, Gender: Unknown (Confidence: 0.76)
+2024-11-29 14:28:55 - jefri 0.59, Gender: Male left. Detected for 3.09 seconds.
+2024-11-29 14:28:56 - Detected: jefri 0.54, Gender: Male (Confidence: 0.54)
+2024-11-29 14:28:57 - Detected: jefri 0.72, Gender: Unknown (Confidence: 0.72)
+2024-11-29 14:28:57 - jefri 0.76, Gender: Unknown left. Detected for 3.07 seconds.
+2024-11-29 14:28:58 - Detected: jefri 0.78, Gender: Unknown (Confidence: 0.78)
+2024-11-29 14:28:58 - jefri 0.54, Gender: Male left. Detected for 2.07 seconds.
+2024-11-29 14:28:59 - Detected: jefri 0.27, Gender: Unknown (Confidence: 0.27)
+2024-11-29 14:28:59 - jefri 0.72, Gender: Unknown left. Detected for 2.07 seconds.
+2024-11-29 14:29:00 - Detected: jefri 0.71, Gender: Unknown (Confidence: 0.71)
+2024-11-29 14:29:01 - Detected: jefri 0.31, Gender: Female (Confidence: 0.31)
+2024-11-29 14:29:01 - jefri 0.27, Gender: Unknown left. Detected for 2.05 seconds.
+2024-11-29 14:29:02 - Detected: jefri 0.92, Gender: Unknown (Confidence: 0.92)
+2024-11-29 14:29:02 - Detected: jefri 0.27, Gender: Unknown (Confidence: 0.27)
+2024-11-29 14:29:02 - jefri 0.78, Gender: Unknown left. Detected for 4.08 seconds.
+2024-11-29 14:29:02 - jefri 0.71, Gender: Unknown left. Detected for 2.01 seconds.
+2024-11-29 14:29:03 - Detected: jefri 0.91, Gender: Unknown (Confidence: 0.91)
+2024-11-29 14:29:03 - jefri 0.31, Gender: Female left. Detected for 2.01 seconds.
+2024-11-29 14:29:04 - Detected: jefri 0.78, Gender: Unknown (Confidence: 0.78)
+2024-11-29 14:29:04 - jefri 0.92, Gender: Unknown left. Detected for 2.02 seconds.
+2024-11-29 14:29:06 - jefri 0.78, Gender: Unknown left. Detected for 2.06 seconds.
+2024-11-29 14:29:10 - Detected: jefri 0.80, Gender: Unknown (Confidence: 0.80)
+2024-11-29 14:29:11 - Detected: jefri 0.57, Gender: Male (Confidence: 0.57)
+2024-11-29 14:29:11 - jefri 0.91, Gender: Unknown left. Detected for 8.28 seconds.
+2024-11-29 14:29:12 - Detected: jefri 0.47, Gender: Unknown (Confidence: 0.47)
+2024-11-29 14:29:12 - jefri 0.80, Gender: Unknown left. Detected for 2.04 seconds.
+2024-11-29 14:29:13 - jefri 0.57, Gender: Male left. Detected for 2.03 seconds.
+2024-11-29 14:29:20 - jefri 0.27, Gender: Unknown left. Detected for 17.55 seconds.
+2024-11-29 14:29:21 - Detected: jefri 0.40, Gender: Unknown (Confidence: 0.40)
+2024-11-29 14:29:23 - Detected: jefri 0.77, Gender: Unknown (Confidence: 0.77)
+2024-11-29 14:29:23 - jefri 0.40, Gender: Unknown left. Detected for 2.05 seconds.
+2024-11-29 14:29:26 - Detected: jefri 0.35, Gender: Unknown (Confidence: 0.35)
+2024-11-29 14:29:26 - jefri 0.77, Gender: Unknown left. Detected for 3.02 seconds.
+2024-11-29 14:29:27 - Detected: jefri 0.56, Gender: Unknown (Confidence: 0.56)
+2024-11-29 14:29:28 - jefri 0.47, Gender: Unknown left. Detected for 15.38 seconds.
+2024-11-29 14:29:28 - jefri 0.35, Gender: Unknown left. Detected for 2.04 seconds.
+2024-11-29 14:29:29 - Detected: jefri 0.36, Gender: Unknown (Confidence: 0.36)
+2024-11-29 14:29:29 - jefri 0.56, Gender: Unknown left. Detected for 2.05 seconds.
+2024-11-29 14:29:30 - Detected: jefri 0.36, Gender: Unknown (Confidence: 0.36)
+2024-11-29 14:29:31 - Detected: jefri 0.70, Gender: Unknown (Confidence: 0.70)
+2024-11-29 14:29:31 - jefri 0.36, Gender: Unknown left. Detected for 2.11 seconds.
+2024-11-29 14:29:32 - Detected: jefri 0.73, Gender: Unknown (Confidence: 0.73)
+2024-11-29 14:29:33 - jefri 0.70, Gender: Unknown left. Detected for 2.05 seconds.
+2024-11-29 14:29:34 - jefri 0.73, Gender: Unknown left. Detected for 2.05 seconds.
+2024-11-29 14:29:38 - Detected: jefri 0.63, Gender: Unknown (Confidence: 0.63)
+2024-11-29 14:29:38 - Detected: jefri 0.52, Gender: Unknown (Confidence: 0.52)
+2024-11-29 14:29:39 - Detected: jefri 0.64, Gender: Unknown (Confidence: 0.64)
+2024-11-29 14:29:39 - jefri 0.36, Gender: Unknown left. Detected for 9.23 seconds.
+2024-11-29 14:29:40 - jefri 0.52, Gender: Unknown left. Detected for 2.03 seconds.
+2024-11-29 14:29:41 - Detected: jefri 0.40, Gender: Unknown (Confidence: 0.40)
+2024-11-29 14:29:41 - jefri 0.64, Gender: Unknown left. Detected for 2.02 seconds.
+2024-11-29 14:29:42 - Detected: jefri 0.68, Gender: Unknown (Confidence: 0.68)
+2024-11-29 14:29:43 - Detected: jefri 0.80, Gender: Unknown (Confidence: 0.80)
+2024-11-29 14:29:43 - Detected: jefri 0.33, Gender: Unknown (Confidence: 0.33)
+2024-11-29 14:29:43 - jefri 0.63, Gender: Unknown left. Detected for 5.13 seconds.
+2024-11-29 14:29:43 - jefri 0.40, Gender: Unknown left. Detected for 2.10 seconds.
+2024-11-29 14:29:45 - Detected: jefri 0.73, Gender: Male (Confidence: 0.73)
+2024-11-29 14:29:45 - jefri 0.33, Gender: Unknown left. Detected for 2.04 seconds.
+2024-11-29 14:29:46 - Detected: jefri 0.58, Gender: Unknown (Confidence: 0.58)
+2024-11-29 14:29:46 - jefri 0.68, Gender: Unknown left. Detected for 4.13 seconds.
+2024-11-29 14:29:46 - jefri 0.80, Gender: Unknown left. Detected for 3.10 seconds.
+2024-11-29 14:29:49 - Detected: jefri 0.91, Gender: Unknown (Confidence: 0.91)
+2024-11-29 14:29:50 - Detected: jefri 0.53, Gender: Unknown (Confidence: 0.53)
+2024-11-29 14:29:50 - jefri 0.73, Gender: Male left. Detected for 5.22 seconds.
+2024-11-29 14:29:50 - jefri 0.58, Gender: Unknown left. Detected for 4.16 seconds.
+2024-11-29 14:29:52 - Detected: jefri 0.28, Gender: Unknown (Confidence: 0.28)
+2024-11-29 14:29:53 - Detected: jefri 0.84, Gender: Unknown (Confidence: 0.84)
+2024-11-29 14:29:54 - jefri 0.91, Gender: Unknown left. Detected for 4.10 seconds.
+2024-11-29 14:29:55 - jefri 0.28, Gender: Unknown left. Detected for 2.06 seconds.
+2024-11-29 14:30:00 - jefri 0.84, Gender: Unknown left. Detected for 6.10 seconds.
+2024-11-29 14:30:01 - Detected: jefri 0.86, Gender: Unknown (Confidence: 0.86)
+2024-11-29 14:30:04 - jefri 0.86, Gender: Unknown left. Detected for 3.06 seconds.
+2024-11-29 14:30:08 - Detected: jefri 0.75, Gender: Unknown (Confidence: 0.75)
+2024-11-29 14:30:08 - Detected: jefri 0.74, Gender: Unknown (Confidence: 0.74)
+2024-11-29 14:30:09 - jefri 0.53, Gender: Unknown left. Detected for 18.40 seconds.
+2024-11-29 14:30:10 - jefri 0.75, Gender: Unknown left. Detected for 2.02 seconds.
+2024-11-29 14:30:10 - jefri 0.74, Gender: Unknown left. Detected for 2.02 seconds.
+2024-11-29 14:30:11 - Detected: jefri 0.46, Gender: Unknown (Confidence: 0.46)
+2024-11-29 14:30:13 - Detected: jefri 0.55, Gender: Unknown (Confidence: 0.55)
+2024-11-29 14:30:15 - jefri 0.55, Gender: Unknown left. Detected for 2.03 seconds.
+2024-11-29 14:30:18 - Detected: jefri 0.29, Gender: Unknown (Confidence: 0.29)
+2024-11-29 14:30:20 - jefri 0.29, Gender: Unknown left. Detected for 2.05 seconds.
+2024-11-29 14:30:26 - Detected: jefri 0.60, Gender: Unknown (Confidence: 0.60)
+2024-11-29 14:30:28 - jefri 0.60, Gender: Unknown left. Detected for 2.01 seconds.
+2024-11-29 14:30:29 - Detected: jefri 0.43, Gender: Unknown (Confidence: 0.43)
+2024-11-29 14:30:30 - Detected: jefri 0.72, Gender: Unknown (Confidence: 0.72)
+2024-11-29 14:30:32 - jefri 0.72, Gender: Unknown left. Detected for 2.00 seconds.
+2024-11-29 14:30:36 - Detected: jefri 0.81, Gender: Unknown (Confidence: 0.81)
+2024-11-29 14:30:36 - Detected: jefri 0.60, Gender: Unknown (Confidence: 0.60)
+2024-11-29 14:30:36 - jefri 0.43, Gender: Unknown left. Detected for 7.14 seconds.
+2024-11-29 14:30:37 - Detected: jefri 0.88, Gender: Unknown (Confidence: 0.88)
+2024-11-29 14:30:38 - Detected: jefri 0.84, Gender: Female (Confidence: 0.84)
+2024-11-29 14:30:38 - jefri 0.81, Gender: Unknown left. Detected for 2.05 seconds.
+2024-11-29 14:30:38 - jefri 0.60, Gender: Unknown left. Detected for 2.05 seconds.
+2024-11-29 14:30:39 - Detected: jefri 0.72, Gender: Female (Confidence: 0.72)
+2024-11-29 14:30:40 - jefri 0.88, Gender: Unknown left. Detected for 2.05 seconds.
+2024-11-29 14:30:41 - jefri 0.84, Gender: Female left. Detected for 2.05 seconds.
+2024-11-29 14:30:42 - Detected: jefri 0.63, Gender: Unknown (Confidence: 0.63)
+2024-11-29 14:30:43 - Detected: jefri 0.53, Gender: Unknown (Confidence: 0.53)
+2024-11-29 14:30:44 - jefri 0.63, Gender: Unknown left. Detected for 2.05 seconds.
+2024-11-29 14:30:48 - Detected: jefri 0.93, Gender: Unknown (Confidence: 0.93)
+2024-11-29 14:30:48 - jefri 0.72, Gender: Female left. Detected for 8.17 seconds.
+2024-11-29 14:30:53 - Detected: jefri 0.44, Gender: Male (Confidence: 0.44)
+2024-11-29 14:30:53 - jefri 0.53, Gender: Unknown left. Detected for 10.20 seconds.
+2024-11-29 14:30:54 - Detected: jefri 0.26, Gender: Unknown (Confidence: 0.26)
+2024-11-29 14:30:55 - jefri 0.44, Gender: Male left. Detected for 2.07 seconds.
+2024-11-29 14:30:58 - Detected: jefri 0.88, Gender: Male (Confidence: 0.88)
+2024-11-29 14:30:59 - Detected: jefri 0.94, Gender: Female (Confidence: 0.94)
+2024-11-29 14:30:59 - jefri 0.93, Gender: Unknown left. Detected for 11.23 seconds.
+2024-11-29 14:31:00 - jefri 0.88, Gender: Male left. Detected for 2.01 seconds.
+2024-11-29 14:31:08 - jefri 0.26, Gender: Unknown left. Detected for 14.30 seconds.
+2024-11-29 14:31:12 - Detected: jefri 0.46, Gender: Unknown (Confidence: 0.46)
+2024-11-29 14:31:15 - jefri 0.94, Gender: Female left. Detected for 16.30 seconds.
+2024-11-29 14:31:16 - Detected: jefri 0.29, Gender: Female (Confidence: 0.29)
+2024-11-29 14:31:16 - Detected: jefri 0.26, Gender: Unknown (Confidence: 0.26)
+2024-11-29 14:31:18 - jefri 0.29, Gender: Female left. Detected for 2.04 seconds.
+2024-11-29 14:31:18 - jefri 0.26, Gender: Unknown left. Detected for 2.04 seconds.
+2024-11-29 14:31:19 - Detected: jefri 0.78, Gender: Unknown (Confidence: 0.78)
+2024-11-29 14:31:20 - Detected: jefri 0.96, Gender: Unknown (Confidence: 0.96)
+2024-11-29 14:31:20 - Detected: jefri 0.73, Gender: Unknown (Confidence: 0.73)
+2024-11-29 14:31:21 - jefri 0.46, Gender: Unknown left. Detected for 70.44 seconds.
+2024-11-29 14:31:21 - jefri 0.78, Gender: Unknown left. Detected for 2.06 seconds.
+2024-11-29 14:31:22 - Detected: jefri 0.94, Gender: Male (Confidence: 0.94)
+2024-11-29 14:31:23 - jefri 0.96, Gender: Unknown left. Detected for 3.11 seconds.
+2024-11-29 14:31:31 - Detected: jefri 0.75, Gender: Unknown (Confidence: 0.75)
+2024-11-29 14:31:31 - Detected: jefri 0.94, Gender: Female (Confidence: 0.94)
+2024-11-29 14:31:33 - Detected: jefri 0.62, Gender: Female (Confidence: 0.62)
+2024-11-29 14:31:33 - jefri 0.94, Gender: Male left. Detected for 10.18 seconds.
+2024-11-29 14:31:33 - jefri 0.75, Gender: Unknown left. Detected for 2.05 seconds.
+2024-11-29 14:31:34 - jefri 0.94, Gender: Female left. Detected for 2.04 seconds.
+2024-11-29 14:31:35 - jefri 0.62, Gender: Female left. Detected for 2.02 seconds.
+2024-11-29 14:31:36 - Detected: jefri 0.71, Gender: Female (Confidence: 0.71)
+2024-11-29 14:42:01 - Detected: jefri 0.51, Gender: Unknown (Confidence: 0.51)
+2024-11-29 14:42:02 - Detected: jefri 0.31, Gender: Unknown (Confidence: 0.31)
+2024-11-29 14:42:03 - jefri 0.51, Gender: Unknown left. Detected for 2.05 seconds.
+2024-11-29 14:42:04 - jefri 0.31, Gender: Unknown left. Detected for 2.07 seconds.
+2024-11-29 14:42:51 - Detected: jefri 0.31, Gender: Unknown (Confidence: 0.31)
+2024-11-29 14:42:53 - jefri 0.31, Gender: Unknown left. Detected for 2.04 seconds.
+2024-11-29 14:42:57 - Detected: jefri 0.42, Gender: Unknown (Confidence: 0.42)
+2024-11-29 14:42:59 - jefri 0.42, Gender: Unknown left. Detected for 2.03 seconds.
+2024-11-29 14:43:02 - Detected: jefri 0.29, Gender: Unknown (Confidence: 0.29)
+2024-11-29 14:43:04 - jefri 0.29, Gender: Unknown left. Detected for 2.10 seconds.

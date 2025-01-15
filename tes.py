@@ -34,7 +34,8 @@ def detect_behavior(frame):
     return results
 
 # Access the camera
-cap = cv2.VideoCapture(0)  # Change to the correct index for your camera
+rtsp_url = 'rtsp://admin:admin@10.3.1.165:8554/Streaming/Channels/102'
+cap = cv2.VideoCapture(rtsp_url)  # Change to the correct index for your camera
 
 # Open log file to record detections
 log_file = open('log.txt', 'a')  # Open file in append mode

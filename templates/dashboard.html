@@ -1,152 +1,437 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitoring Perilaku</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f6f9fc 0%, #e3edf7 100%);
+            color: #2c3e50;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
         .sidebar {
             height: 100vh;
-            background-color: #f8f9fa;
-            transition: width 0.3s ease; /* Animation for width change */
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(108, 99, 255, 0.1);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: fixed;
+            z-index: 1000;
+            box-shadow: 5px 0 15px rgba(108, 99, 255, 0.1);
         }
+
+        .sidebar:hover {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
         .sidebar img {
-            width: 80%; /* Ukuran logo bisa diatur sesuai kebutuhan */
+            width: 80%;
             display: block;
-            margin: 10px auto; /* Centering logo */
-            margin-bottom: 40px; /* Increase spacing between logo and title */
+            margin: 20px auto;
+            transition: transform 0.5s ease;
         }
-        .main-content {
-            background-color: #ffffff;
+
+        .sidebar img:hover {
+            transform: scale(1.05);
         }
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            height: 100%; /* Memastikan semua card memiliki tinggi yang sama */
-        }
+
         .nav-link {
-            font-weight: 500; /* Konsisten di kedua elemen */
-            font-size: 1.1rem; /* Ukuran font sama */
-            color: #343a40; /* Warna teks umum */
-            transition: color 0.3s, background-color 0.3s; /* Animasi saat hover */
-            padding: 10px 15px; /* Padding untuk elemen link */
+            color: #6c63ff;
+            margin: 10px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(108, 99, 255, 0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
+        }
+
         .nav-link:hover {
-            background-color: #ebf0f7;
-            color: #112b68;
-            border-radius: 5px;
+            background: rgba(108, 99, 255, 0.1);
+            color: #4a3fff;
+            transform: translateX(5px);
         }
+
         .nav-link.active {
-            background-color: #bccded;
-            color: #112b68;
-            font-weight: bold;
+            background: linear-gradient(45deg, #6c63ff, #4a3fff);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
         }
-        /* Styling untuk font jam dan tanggal */
+
+        .main-content {
+            margin-left: 16.66667%;
+            padding: 2rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(108, 99, 255, 0.2);
+            border-radius: 20px;
+            transition: all 0.5s ease;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(108, 99, 255, 0.1);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(108, 99, 255, 0.2);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .card-title {
+            color: #4a3fff;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .current-time-date {
-            font-family: 'Roboto Mono', monospace;
-            font-weight: 700; /* Ketebalan font */
-            font-size: 2rem; /* Ukuran font untuk waktu dan tanggal */
-            color: #333;
+            font-size: 2rem;
+            font-weight: 600;
+            background: linear-gradient(45deg, #6c63ff, #4a3fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(108, 99, 255, 0.1);
         }
+
         .icon {
-            font-size: 1.5rem; /* Ukuran ikon */
-            margin-right: 10px; /* Jarak antara ikon dan teks */
+            font-size: 1.5rem;
+            background: linear-gradient(45deg, #6c63ff, #4a3fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .d-flex-align { 
-            display: flex; 
-            align-items: center; /* Menyelaraskan ikon dan teks secara vertikal */
+
+        .video-feed {
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(108, 99, 255, 0.1);
+        }
+
+        .video-feed::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            background: linear-gradient(45deg, #6c63ff, #4a3fff) border-box;
+            -webkit-mask:
+                linear-gradient(#fff 0 0) padding-box,
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+        }
+
+        .stats-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(108, 99, 255, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .stats-card:hover::after {
+            opacity: 1;
+        }
+
+        .alert {
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            /* Tambahkan transform untuk efek masuk */
+            transform: translateY(-20px);
+            /* Posisi awal untuk animasi masuk */
+        }
+
+        .alert.show {
+            opacity: 1;
+            /* Ketika ditampilkan */
+            transform: translateY(0);
+            /* Posisi akhir untuk animasi masuk */
+        }
+
+        .btn-logout {
+            background-color: transparent;
+            color: #6c63ff;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+            transition: color 0.3s ease;
+            margin-top: 295px;
+            /* Adjust this value as needed */
+        }
+
+        .btn-logout::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(108, 99, 255, 0.3);
+            transition: left 0.5s;
+        }
+
+        .btn-logout:hover::before {
+            left: 0;
+        }
+
+        .btn-logout:hover {
+            color: #6c63ff;
+            border-color: rgba(108, 99, 255, 0.7);
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        .equal-size {
+            height: 200px;
+            /* Atau sesuaikan dengan ukuran yang diinginkan */
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #6c63ff, #4a3fff);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #4a3fff, #6c63ff);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        /* Tambahan efek hover untuk cards */
+        .card {
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg,
+                    rgba(108, 99, 255, 0.15),
+                    rgba(74, 63, 255, 0.15));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover::before {
+            opacity: 1;
         }
     </style>
 </head>
+
 <body>
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+            <nav class="col-md-2 sidebar animate__animated animate__slideInLeft">
                 <div class="position-sticky pt-3">
-                    <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo">
+                    <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo"
+                        class="animate__animated animate__fadeIn">
                     <ul class="nav flex-column">
-                        <li class="nav-item">
+                        <li class="nav-item animate__animated animate__fadeInLeft" style="animation-delay: 0.2s">
                             <a class="nav-link active" href="#">
                                 <i class="bi bi-house-door"></i> Dashboard
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item animate__animated animate__fadeInLeft" style="animation-delay: 0.4s">
                             <a class="nav-link" href="{{ url_for('laporan') }}">
                                 <i class="bi bi-file-earmark-text"></i> Laporan
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item animate__animated animate__fadeInLeft" style="animation-delay: 0.6s">
                             <a class="nav-link" href="{{ url_for('dataset') }}">
                                 <i class="bi bi-plus-square"></i> Dataset
                             </a>
                         </li>
+                        <li class="nav-item animate__animated animate__fadeInLeft" style="animation-delay: 0.8s">
+                            <a class="nav-link" href="{{ url_for('pelanggaran') }}">
+                                <i class="bi bi-exclamation-triangle"></i> Pelanggaran
+                            </a>
+                        </li>
+                        <div class="mt-2">
+                            <a href="{{ url_for('logout') }}"
+                                class="btn btn-logout w-100 animate__animated animate__fadeInLeft fw-bold"
+                                style="animation-delay: 1.2s;">Sign Out</a>
+                        </div>
                     </ul>
                 </div>
+
             </nav>
 
             <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Dashboard</h1>
+            <main class="col-md-10 main-content">
+                <div
+                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2 fw-bold"
+                        style="font-size: 2.5rem; color: #4a3fff; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);">
+                        Dashboard
+                    </h1>
                 </div>
+                <!-- Alert -->
+                <div class="alert alert-info alert-dismissible fade" role="alert" id="welcomeAlert">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    {% if current_time.hour < 11 %} Selamat Pagi, <strong>{{ user.username }}</strong>!
+                        {% elif current_time.hour < 15 %} Selamat Siang, <strong>{{ user.username }}</strong>!
+                            {% elif current_time.hour < 19 %} Selamat Sore, <strong>{{ user.username }}</strong>!
+                                {% else %}
+                                Selamat Malam, <strong>{{ user.username }}</strong>!
+                                {% endif %}
+                </div>
+
 
                 <div class="row g-4 mb-4">
                     <div class="col-md-6">
                         <div class="row row-cols-1 row-cols-md-2 g-4">
-                            <div class="col">
-                                <div class="card">
+                            <div class="col animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+                                <div class="card stats-card equal-size">
                                     <div class="card-body">
-                                        <h5 class="card-title d-flex-align">
-                                            <i class="bi bi-clock icon"></i> Waktu 
+                                        <h5 class="card-title">
+                                            <i class="bi bi-clock icon"></i> Waktu
                                         </h5>
                                         <p class="card-text current-time-date" id="current-time"></p>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h5 class="card-title d-flex-align">
-                                            <i class="bi bi-calendar icon"></i> Tanggal     
-                                        </h5>
-                                        <p class="card-text current-time-date" id="current-date"></p> <!-- Menggunakan kelas yang sama -->
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="card">
+                            <div class="col animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
+                                <div class="card stats-card equal-size">
                                     <div class="card-body">
                                         <h5 class="card-title">
-                                            <i class="bi bi-file-earmark-text"></i> Jumlah Laporan
+                                            <i class="bi bi-calendar icon"></i> Tanggal
                                         </h5>
-                                        <p class="card-text fs-2">{{ total_logs }}</p> <!-- Display the total logs count -->
+                                        <p class="card-text current-time-date" id="current-date"></p>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col">
-                                <div class="card">
+                            <div class="col animate__animated animate__fadeInUp" style="animation-delay: 0.6s">
+                                <div class="card stats-card equal-size">
                                     <div class="card-body">
-                                        <h5 class="card-title">####</h5>
-                                        <p class="card-text fs-2"> </p>
+                                        <h5 class="card-title">
+                                            <i class="bi bi-file-earmark-text icon"></i> Jumlah Laporan
+                                        </h5>
+                                        <p class="card-text current-time-date">{{ total_logs }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col animate__animated animate__fadeInUp" style="animation-delay: 0.8s">
+                                <div class="card stats-card equal-size">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <i class="bi bi-camera-video icon"></i> Status
+                                        </h5>
+                                        <p class="card-text current-time-date">Active</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <h5 class="card-title">Monitoring Kamera CCTV</h5>
-                                <img src="{{ url_for('video_feed') }}" class="img-fluid" alt="Video Feed">
+                    <div class="col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 1s">
+                        <div class="d-flex flex-column">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="bi bi-camera icon"></i> Monitoring Kamera CCTV 1
+                                    </h5>
+                                    <div class="video-feed">
+                                        <img src="{{ url_for('video_feed1') }}" class="img-fluid" alt="Video Feed 1">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="bi bi-camera icon"></i> Monitoring Kamera CCTV 2
+                                    </h5>
+                                    <div class="video-feed">
+                                        <img src="{{ url_for('video_feed2') }}" class="img-fluid" alt="Video Feed 2">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </main>
         </div>
     </div>
 
@@ -154,21 +439,47 @@
     <script>
         function updateTime() {
             const now = new Date();
-            // Ambil waktu dan ganti titik (.) dengan titik dua (:)
             let timeString = now.toLocaleTimeString('id-ID', { hour12: false });
             timeString = timeString.replace(/\./g, ':');
             document.getElementById('current-time').textContent = timeString;
 
-            // Ambil tanggal sekarang
-            const dateString = now.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+            const dateString = now.toLocaleDateString('id-ID', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
             document.getElementById('current-date').textContent = dateString;
         }
 
-        // Update time every second
         setInterval(updateTime, 1000);
-
-        // Set the initial time and date
         updateTime();
+
+        // Tambahan animasi untuk cards
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const alertElement = document.getElementById('welcomeAlert');
+
+            // Tampilkan alert dengan animasi
+            setTimeout(() => {
+                alertElement.classList.add('show');
+            }, 100); // Sedikit delay untuk memicu animasi
+
+            // Menyembunyikan alert saat tombol close diklik
+            alertElement.querySelector('.btn-close').addEventListener('click', function () {
+                alertElement.classList.remove('show');
+            });
+        });
     </script>
 </body>
+
 </html>

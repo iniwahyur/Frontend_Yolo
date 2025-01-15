@@ -1,185 +1,350 @@
+from flask import Flask, render_template, Response, request, redirect, url_for, jsonify
+from flask_sqlalchemy import SQLAlchemy
 import cv2
 import time
+import os
+from datetime import datetime
 from ultralytics import YOLO
+import random
+import winsound
+import threading
+import uuid
+import numpy as np
 
-# Load YOLOv8 model
-model = YOLO('best.pt')  # Make sure you have the model file, 'yolov8n.pt', downloaded
+app = Flask(__name__)
 
+# Konfigurasi Database
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'app.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Inisialisasi database
+db = SQLAlchemy(app)
+
+# Model untuk log deteksi
+class DetectionLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    label = db.Column(db.String(64), nullable=False)
+    confidence = db.Column(db.Float, nullable=False)
+    gender = db.Column(db.String(10), nullable=False)
+    duration = db.Column(db.Float, nullable=False)
+    completed = db.Column(db.Boolean, default=False)
+    image_path = db.Column(db.String(200), nullable=True)
+
+    def __repr__(self):
+        return f"<DetectionLog {self.label}, {self.gender}, {self.confidence}, {self.duration}, {self.image_path}>"
+
+# Load model YOLOv8
+model = YOLO('best.pt')
+
+# Warna untuk kelas yang berbeda
 colors = {
-    0: (0, 0, 255),      # Merah untuk "Risyad Maulana"
-    1: (0, 255, 0)      # Hijau untuk "Adhitya Hendri"
+    0: (0, 0, 255),  # Merah untuk "jefri"
+    1: (0, 255, 0),  # Hijau untuk "manca"
+    2: (255, 0, 0)   # Biru untuk "minuman"
 }
 
 class_names = {
-    0: "jefri",
-    1: "manca"
-    # 2: "Alif Andika",
-    # 3: "Allam Rosyad Akbar",
-    # 4: "Annisa Rizkyta",
-    # 5: "Ardiansyah Al Faiz",
-    # 6: "Arif",
-    # 7: "Ayunda Lintang",
-    # 8: "Azwar Syifa",
-    # 9: "Daffa",
-    # 10: "Desfianto",
-    # 11: "Dhery Akbar Ramadhan",
-    # 12: "Fadeta Ilham Gandi",
-    # 13: "Iqbal Farissi",
-    # 14: "Merthisia Roszi",
-    # 15: "Risyad Maulana",
+    0: "angga",
+    1: "manca",
+    2: "minuman"
 }
 
-# Load pre-trained face detector (Haarcascade classifier)
+# Load detektor wajah (Haarcascade classifier)
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-# Example gender classifier function (dummy, returns Male/Female based on random chance)
-import random
-def classify_gender(face):
-    # Placeholder function: replace with an actual gender classifier model
-    return "Male" if random.random() > 0.5 else "Female"
+def classify_gender(cls):
+    if cls == 0 or cls == 1:  # Manca dan Jefri
+        return "Male"
+    elif cls == 2:  # Minuman
+        return "Unknown"  # Tidak ada gender untuk minuman
+    return "Unknown"
 
-# Function to detect behavior (people only)
 def detect_behavior(frame):
     results = model(frame)
     return results
 
-# Access the camera (replace with the appropriate camera index)
-cap = cv2.VideoCapture(0)  # Change to the correct index for your camera
+cap = cv2.VideoCapture(0)
 
-# Open log file to record detections
-log_file = open('log.txt', 'a')  # Open file in append mode
+last_detection_time = time.time()
+detection_interval = 1
+box_buffer = []
 
-# Time control variables
-last_detection_time = time.time()  # Initialize the time of the last detection
-detection_interval = 1  # Interval in seconds (1 second)
+def log_detection(label, gender, confidence, duration, image_path=None):
+    try:
+        with app.app_context():
+            log = DetectionLog.query.filter_by(label=label, completed=False).one_or_none()
+            if log:
+                log.duration += duration
+                log.timestamp = datetime.now()
+                if image_path:
+                    log.image_path = image_path
+                db.session.commit()
+            else:
+                new_log = DetectionLog(
+                    label=label,
+                    confidence=confidence,
+                    gender=gender,
+                    duration=duration,
+                    timestamp=datetime.now(),
+                    completed=False,
+                    image_path=image_path
+                )
+                db.session.add(new_log)
+                db.session.commit()
+    except Exception as e:
+        print(f"Error logging detection: {e}")
 
-# Buffer to store detected boxes and their timestamps
-box_buffer = []  # List to store (x1, y1, x2, y2, label, gender, init_time, last_seen_time)
-
-# Counter for labeling detected people
-person_counter = 0
-
-# Function to calculate IoU (Intersection over Union)
 def calculate_iou(box1, box2):
     x1_1, y1_1, x2_1, y2_1 = box1
     x1_2, y1_2, x2_2, y2_2 = box2
 
-    # Calculate the coordinates of the intersection rectangle
     x1_inter = max(x1_1, x1_2)
     y1_inter = max(y1_1, y1_2)
     x2_inter = min(x2_1, x2_2)
     y2_inter = min(y2_1, y2_2)
 
-    # Calculate the area of intersection
     inter_area = max(0, x2_inter - x1_inter) * max(0, y2_inter - y1_inter)
-
-    # Calculate the areas of the input boxes
     box1_area = (x2_1 - x1_1) * (y2_1 - y1_1)
     box2_area = (x2_2 - x1_2) * (y2_2 - y1_2)
 
-    # Calculate IoU
-    iou = inter_area / float(box1_area + box2_area - inter_area)
+    iou = inter_area / float(box1_area + box2_area - inter_area) if (box1_area + box2_area - inter_area) > 0 else 0
     return iou
 
-# Function to check if a box is already in the buffer using IoU
 def is_box_in_buffer(new_box, buffer, iou_threshold=0.5):
-    """Check if a new bounding box is already in the buffer using IoU.
-       If IoU > threshold, the boxes are considered the same."""
     for i, (x1, y1, x2, y2, label, gender, init_time, last_seen_time) in enumerate(buffer):
         existing_box = (x1, y1, x2, y2)
         iou = calculate_iou(new_box, existing_box)
         if iou > iou_threshold:
-            return i  # Return index of the matched box in the buffer
-    return -1  # If not found, return -1
+            return i
+    return -1
 
-# Duration to keep boxes if they are not seen (in seconds)
 box_expiry_duration = 2
 
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        break
+def play_strobe_sound():
+    for _ in range(3):
+        winsound.Beep(1000, 200)
+        time.sleep(0.5)
 
-    # Get current time
-    current_time = time.time()
+def generate_frames():
+    global last_detection_time, box_buffer
+    minuman_alert = False
 
-    # Perform detection only if the detection interval has passed
-    if current_time - last_detection_time >= detection_interval:
-        results = detect_behavior(frame)
-        last_detection_time = current_time  # Update the time of the last detection
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
 
-        # Add new detections to the buffer with current timestamp
-        for result in results:
-            boxes = result.boxes  # Get the detected boxes
-            for box in boxes:
-                cls = int(box.cls[0])  # Class index
-                # Only process if the detected class is 'person' (class index 0)
-                if cls == 0:
-                    x1, y1, x2, y2 = map(int, box.xyxy[0])  # Get coordinates of the bounding box
-                    conf = box.conf[0]  # Confidence score
-                    new_box = (x1, y1, x2, y2)
+        current_time = time.time()
 
-                    # Detect face inside the bounding box
-                    face_region = frame[y1:y2, x1:x2]
-                    faces = face_cascade.detectMultiScale(face_region, scaleFactor=1.1, minNeighbors=5)
+        if current_time - last_detection_time >= detection_interval:
+            results = detect_behavior(frame)
+            last_detection_time = current_time
 
-                    gender = "Unknown"
-                    if len(faces) > 0:
-                        # If a face is detected, classify gender based on the face
-                        for (fx, fy, fw, fh) in faces:
-                            face = face_region[fy:fy+fh, fx:fx+fw]
-                            gender = classify_gender(face)
+            detected_minuman = False
 
-                    # Check if this box is already in the buffer using IoU
-                    box_index = is_box_in_buffer(new_box, box_buffer)
+            for result in results:
+                boxes = result.boxes
+                for box in boxes:
+                    cls = int(box.cls[0])
+                    conf = box.conf[0]
 
-                    if box_index == -1:
-                        # If the box is new, add to buffer with initial timestamp
-                        person_counter += 1  # Increment the person counter
-                        label = f"Orang {person_counter} {conf:.2f}"  # Assign unique label to each person
-                        box_buffer.append((x1, y1, x2, y2, label, gender, current_time, current_time))
+                    # Hanya mendeteksi jika confidence >= 70%
+                    if conf >= 0.1:
+                        x1, y1, x2, y2 = map(int, box.xyxy[0])
+                        new_box = (x1, y1, x2, y2)
 
-                        # Write detection start to log file with gender
-                        log_entry = f"{time.strftime('%Y-%m-%d %H:%M:%S')} - Detected: {label}, Gender: {gender} (Confidence: {conf:.2f})\n"
-                        log_file.write(log_entry)
+                        # Tetapkan gender berdasarkan kelas
+                        gender = classify_gender(cls)
 
-                    else:
-                        # If the box is already in the buffer, update the last seen time and box position
-                        buffer_item = list(box_buffer[box_index])
-                        buffer_item[0], buffer_item[1], buffer_item[2], buffer_item[3] = x1, y1, x2, y2  # Update the box coordinates
-                        buffer_item[7] = current_time  # Update last seen time
-                        box_buffer[box_index] = tuple(buffer_item)
+                        # Tambahkan logika untuk memfilter berdasarkan wajah yang sudah ada
+                        if cls == 0 or cls == 1:  # Jefri atau Manca
+                            # Gunakan Haarcascade untuk mendeteksi wajah
+                            gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                            faces = face_cascade.detectMultiScale(gray_frame, scaleFactor=1.1, minNeighbors=5)
 
-    # Remove boxes that have not been seen for a certain amount of time
-    expired_boxes = [(x1, y1, x2, y2, label, gender, init_time, last_seen_time) for (x1, y1, x2, y2, label, gender, init_time, last_seen_time) in box_buffer
-                     if current_time - last_seen_time > box_expiry_duration]
+                            # Jika wajah tidak terdeteksi, lewati
+                            if len(faces) == 0:
+                                continue
 
-    # Write the log for boxes that are no longer detected
-    for (x1, y1, x2, y2, label, gender, init_time, last_seen_time) in expired_boxes:
-        detection_duration = current_time - init_time
-        log_entry = f"{time.strftime('%Y-%m-%d %H:%M:%S')} - {label}, Gender: {gender} left. Detected for {detection_duration:.2f} seconds.\n"
-        log_file.write(log_entry)
+                        box_index = is_box_in_buffer(new_box, box_buffer)
 
-    # Update buffer by removing expired boxes
-    box_buffer = [(x1, y1, x2, y2, label, gender, init_time, last_seen_time) for (x1, y1, x2, y2, label, gender, init_time, last_seen_time) in box_buffer
-                  if current_time - last_seen_time <= box_expiry_duration]
+                        label = f"{class_names[cls]} {conf:.2f}"
+                        if box_index == -1:
+                            box_buffer.append((x1, y1, x2, y2, label, gender, current_time, current_time))
+                            log_detection(label, gender, conf, 0)
 
-    # Draw all boxes (both new and from the buffer) on the current frame
-    for (x1, y1, x2, y2, label, gender, init_time, last_seen_time) in box_buffer:
-        # Calculate how long the person has been detected
-        time_elapsed = current_time - init_time
-        timer_label = f"{label}, {gender} | {int(time_elapsed)}s"
-        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-        cv2.putText(frame, timer_label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                            if cls == 2:
+                                detected_minuman = True
+                                unique_id = uuid.uuid4()
+                                image_filename = f"images/minuman_{unique_id}.jpg"
+                                static_image_filename = f"static/images/minuman_{unique_id}.jpg"
 
-    # Show the frame with detections (this only happens once per loop)
-    cv2.imshow('Deteksi Perilaku Mahasiswa', frame)
+                                # Gambar bounding box pada frame sebelum menyimpan
+                                cv2.rectangle(frame, (x1, y1), (x2, y2), colors[cls], 2)
+                                cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, colors[cls], 2)
 
-    # Exit the loop if 'q' is pressed
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+                                # Simpan gambar dengan bounding box
+                                cv2.imwrite(image_filename, frame)
+                                cv2.imwrite(static_image_filename, frame)
+
+                                log_detection(label, gender, conf, 0, image_path=image_filename)
+                        else:
+                            buffer_item = list(box_buffer[box_index])
+                            buffer_item[0], buffer_item[1], buffer_item[2], buffer_item[3] = x1, y1, x2, y2
+                            buffer_item[7] = current_time
+                            box_buffer[box_index] = tuple(buffer_item)
+
+                        # Selalu gambar bounding box untuk semua kelas yang terdeteksi
+                        cv2.rectangle(frame, (x1, y1), (x2, y2), colors[cls], 2)
+                        cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, colors[cls], 2)
+
+                        if cls == 2:
+                            detected_minuman = True
+
+            if detected_minuman:
+                cv2.putText(frame, "Peringatan: Minuman terdeteksi!", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                if not minuman_alert:
+                    threading.Thread(target=play_strobe_sound).start()
+                    minuman_alert = True
+            else:
+                minuman_alert = False
+
+        expired_boxes = [(x1, y1, x2, y2, label, gender, init_time, last_seen_time) for (x1, y1, x2, y2, label, gender, init_time, last_seen_time) in box_buffer
+                         if current_time - last_seen_time > box_expiry_duration]
+
+        for (x1, y1, x2, y2, label, gender, init_time, last_seen_time) in expired_boxes:
+            detection_duration = current_time - init_time
+            log_detection(label, gender, 0, detection_duration)
+
+        box_buffer = [(x1, y1, x2, y2, label, gender, init_time, last_seen_time) for (x1, y1, x2, y2, label, gender, init_time, last_seen_time) in box_buffer
+                      if current_time - last_seen_time <= box_expiry_duration]
+
+        for (x1, y1, x2, y2, label, gender, init_time, last_seen_time) in box_buffer:
+            time_elapsed = current_time - init_time
+            timer_label = f"{label}, {gender} | {int(time_elapsed)}s"
+
+            class_label = label.split()[0]
+            class_index = [k for k, v in class_names.items() if v == class_label]
+
+            if class_index:
+                color = colors[class_index[0]]
+            else:
+                color = (255, 255, 255)
+
+            cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+            cv2.putText(frame, timer_label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+
+        ret, buffer = cv2.imencode('.jpg', frame)
+        frame = buffer.tobytes()
+
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/')
+def dashboard():
+    total_logs = DetectionLog.query.count()
+    return render_template('dashboard.html', total_logs=total_logs)
+
+@app.route('/laporan')
+def laporan():
+    with app.app_context():
+        logs = DetectionLog.query.all()
+    return render_template('laporan.html', logs=logs)
+
+@app.route('/pelanggaran')
+def pelanggaran():
+    with app.app_context():
+        pelanggarans = DetectionLog.query.all()
+    return render_template('pelanggaran.html', pelanggarans=pelanggarans)
+
+@app.route('/edit_log/<int:id>', methods=['GET', 'POST'])
+def edit_log(id):
+    with app.app_context():
+        log = DetectionLog.query.get_or_404(id)
+        if request.method == 'POST':
+            log.label = request.form['label']
+            log.confidence = float(request.form['confidence'])
+            log.gender = request.form['gender']
+            log.duration = float(request.form['duration'])
+            db.session.commit()
+            return redirect(url_for('laporan'))
+    return render_template('edit_log.html', log=log)
+
+@app.route('/delete_log/<int:id>', methods=['POST'])
+def delete_log(id):
+    with app.app_context():
+        log = DetectionLog.query.get_or_404(id)
+        # Hapus gambar dari folder 'images'
+        if log.image_path:  # Periksa apakah ada jalur gambar
+            try:
+                # Hapus file gambar dari disk
+                if os.path.exists(log.image_path):
+                    os.remove(log.image_path)
+            except Exception as e:
+                print(f"Error deleting image file: {e}")
+        
+        # Hapus gambar dari folder 'static/images' jika ada
+        static_image_path = os.path.join('static/images', os.path.basename(log.image_path)) if log.image_path else None
+        if static_image_path and os.path.exists(static_image_path):
+            try:
+                os.remove(static_image_path)
+            except Exception as e:
+                print(f"Error deleting static image file: {e}")
+
+        db.session.delete(log)
+        db.session.commit()
+    return redirect(url_for('laporan'))
+
+@app.route('/delete_logs', methods=['POST'])
+def delete_logs():
+    ids_to_delete = request.json.get('ids', [])
+    with app.app_context():
+        for id in ids_to_delete:
+            log = DetectionLog.query.get_or_404(id)
+            # Hapus gambar dari folder 'images'
+            if log.image_path:  # Periksa apakah ada jalur gambar
+                try:
+                    # Hapus file gambar dari disk
+                    if os.path.exists(log.image_path):
+                        os.remove(log.image_path)
+                except Exception as e:
+                    print(f"Error deleting image file: {e}")
+
+            # Hapus gambar dari folder 'static/images' jika ada
+            static_image_path = os.path.join('static/images', os.path.basename(log.image_path)) if log.image_path else None
+            if static_image_path and os.path.exists(static_image_path):
+                try:
+                    os.remove(static_image_path)
+                except Exception as e:
+                    print(f"Error deleting static image file: {e}")
+
+        DetectionLog.query.filter(DetectionLog.id.in_(ids_to_delete)).delete(synchronize_session=False)
+        db.session.commit()
+    return jsonify({"success": True, "message": "Logs deleted successfully."}), 200
+
+@app.route('/dataset', methods=['GET', 'POST'])
+def dataset():
+    if request.method == 'POST':
+        pass
+    return render_template('dataset.html')
+
+if __name__ == '__main__':
+    if not os.path.exists('static/images'):
+        os.makedirs('static/images')
+
+    if not os.path.exists('images'):
+        os.makedirs('images')
+
+    with app.app_context():
+        db.create_all()
+    app.run(host='0.0.0.0', port=5000, debug=True)
 
 # Cleanup
-log_file.close()  # Close the log file
 cap.release()
 cv2.destroyAllWindows()
