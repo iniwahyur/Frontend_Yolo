@@ -16,8 +16,7 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
 # Konfigurasi Database
-basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'app.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/monitoring'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Inisialisasi pygame mixer
@@ -78,11 +77,11 @@ def detect_behavior(frame):
     results = model(frame)
     return results
 
-cap1 = cv2.VideoCapture(1)  # Kamera pertama
-cap2 = cv2.VideoCapture(2)  # Kamera kedua
+# cap1 = cv2.VideoCapture(1)  # Kamera pertama
+# cap2 = cv2.VideoCapture(2)  # Kamera kedua
 
-# rtsp_url = 'rtsp://admin:admin@10.3.1.210:8554/Streaming/Channels/102'
-# cap = cv2.VideoCapture(rtsp_url)
+rtsp_url = 'rtsp://admin:admin@192.168.1.5:8554/Streaming/Channels/102'
+cap1 = cv2.VideoCapture(rtsp_url)
 
 last_detection_time = time.time()
 detection_interval = 1
@@ -140,7 +139,7 @@ def is_box_in_buffer(new_box, buffer, iou_threshold=0.5):
 box_expiry_duration = 2
 
 def play_custom_sound():
-    pygame.mixer.music.load('static/sounds/tes.mp3')  # Ganti dengan path ke file suara Anda
+    pygame.mixer.music.load('static/sounds/alarm.mp3')  # Ganti dengan path ke file suara Anda
     pygame.mixer.music.play()  # Memutar suara
 
 def generate_frames(camera_id):
@@ -396,12 +395,11 @@ def register():
         password = request.form['password']
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
         
-        # Peran default untuk pengguna baru adalah 'mahasiswa'
         new_user = User(username=username, password=hashed_password, role='mahasiswa')
         db.session.add(new_user)
         db.session.commit()
         
-        return redirect(url_for('login'))  # Redirect ke halaman login setelah pendaftaran
+        return redirect(url_for('login'))
     
     return render_template('register.html')
 
@@ -413,17 +411,18 @@ def login():
         user = User.query.filter_by(username=username).first()
 
         if user and bcrypt.check_password_hash(user.password, password):
-            session['username'] = user.username  # Simpan username ke session
-            session['role'] = user.role  # Simpan role ke session
+            session['username'] = user.username
+            session['role'] = user.role
             
-            # Arahkan berdasarkan role
-            if user.role == 'mahasiswa':
-                return redirect(url_for('ulaporann'))  # Arahkan mahasiswa ke halaman ulaporann
+            # Redirect berdasarkan role
+            if user.role in ['super_admin', 'admin']:
+                return redirect(url_for('dashboard'))  # Menuju ke dashboard.html
+            elif user.role == 'mahasiswa':
+                return redirect(url_for('ulaporann'))  # Menuju ke ulaporan.html
             else:
-                return redirect(url_for('dashboard'))  # Arahkan pengguna lain ke halaman dashboard
-            
+                return "Role tidak dikenali."
         else:
-            return "Invalid credentials."
+            return "Kredensial tidak valid."
     
     return render_template('login.html')
 
@@ -442,6 +441,10 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     app.run(host='0.0.0.0', port=5000, debug=True)
+
+
+with app.app_context():
+    db.create_all()
 
 # Cleanup
 cap.release()
